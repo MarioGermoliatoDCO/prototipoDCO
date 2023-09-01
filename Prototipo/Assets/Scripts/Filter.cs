@@ -15,14 +15,19 @@ public class Filter : MonoBehaviour
 
     private float currentProgressToClean;
     private float timeToClean = 5f;
-    
 
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     private void Update()
     {
         CheckFilterOpen();
-        CheckFilterClosed();       
-    }   
+        CheckFilterClosed();
+    }
 
     private void CheckFilterOpen()
     {
@@ -53,21 +58,23 @@ public class Filter : MonoBehaviour
         if (other.gameObject.tag == BRUSH_TAG)
         {
             dustParticles.SetActive(true);
+            audioSource.volume = 1;
             if (currentProgressToClean < timeToClean)
             {
                 dustParticles.SetActive(true);
-                currentProgressToClean += Time.deltaTime;                
+                currentProgressToClean += Time.deltaTime;
             }
             else
             {
                 filterMesh.material = cleanFilterMesh;
-                dustParticles.SetActive (false);
-            }            
-        }        
+                dustParticles.SetActive(false);
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
+        audioSource.volume = 0;
         dustParticles?.SetActive(false);
     }
 }
