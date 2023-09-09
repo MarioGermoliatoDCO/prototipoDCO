@@ -25,4 +25,11 @@ public class RemoveEvent : MonoBehaviour
             UnityEventTools.RemovePersistentListener(args.interactableObject.selectEntered, i);
         }
     }
+
+    public void RemoveExitEventObj(SelectExitEventArgs args){
+        for(int i = 0; i < args.interactableObject.selectExited.GetPersistentEventCount()  ; i++){
+            args.interactableObject.selectExited.RemoveAllListeners();
+            UnityEventTools.RemovePersistentListener(args.interactableObject.selectExited, i);
+        }
+    }
 }

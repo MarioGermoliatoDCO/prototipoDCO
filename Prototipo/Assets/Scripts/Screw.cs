@@ -63,7 +63,7 @@ public class Screw : MonoBehaviour
             {
                 currentProgressToRemove += Time.deltaTime;
                 transform.eulerAngles = new Vector3(transform.eulerAngles.x + 50, transform.eulerAngles.y, transform.eulerAngles.z);
-                audio.volume = 1;
+                audio.volume = 0.7f;
             }
             else
             {
@@ -88,7 +88,7 @@ public class Screw : MonoBehaviour
             {
                 currentProgressToPlace += Time.deltaTime;
                 transform.eulerAngles = new Vector3(transform.eulerAngles.x - 50, transform.eulerAngles.y, transform.eulerAngles.z);
-                audio.volume = 1;
+                audio.volume = 0.7f;
             }
             else
             {
@@ -116,7 +116,11 @@ public class Screw : MonoBehaviour
         audio.volume = 0;
     }
 
-    public void ReleaseScrew(SelectExitEventArgs args){
-        this.transform.position = tablePos.position;
+    public void ReleaseScrew(SelectExitEventArgs args)
+    {
+        if (!isScrewPlacedAgain)
+        {
+            this.transform.position = tablePos.position;
+        }
     }
 }

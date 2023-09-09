@@ -7,6 +7,7 @@ public class ShowObjLegend : MonoBehaviour
 {
     public float distanceMultiplier = 1;
     private Camera mainCamera;
+    public Vector3 offset;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,14 +20,17 @@ public class ShowObjLegend : MonoBehaviour
         this.transform.localScale = Vector3.one * distanceMultiplier * Vector3.Distance(this.transform.position, mainCamera.transform.position);
     }
 
-    public void ShowLegend(GameObject obj){
+    public void ShowLegend(GameObject obj)
+    {
         this.gameObject.SetActive(true);
-        Vector3 pos = obj.GetComponent<Collider>().bounds.center + Vector3.up * obj.GetComponent<Collider>().bounds.extents.y;
+        Vector3 extents = obj.GetComponent<Collider>().bounds.extents;
+        Vector3 pos = obj.GetComponent<Collider>().bounds.center + new Vector3(extents.x * offset.x, extents.y * offset.y, extents.z * offset.z);
         this.gameObject.GetComponentInChildren<TMP_Text>().text = obj.name;
         this.transform.position = pos;
     }
 
-    public void HideLegend(){
+    public void HideLegend()
+    {
         this.gameObject.SetActive(false);
     }
 }
