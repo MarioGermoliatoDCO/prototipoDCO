@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEditor.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class FilterGrab : XRGrabInteractable
@@ -9,7 +11,7 @@ public class FilterGrab : XRGrabInteractable
     [SerializeField] private bool caseRemoved;
     [SerializeField] private Transform filterTransform;
     [SerializeField] private float filterLimitX = 1.6f;
-     
+
 
     private const string DEFAULT_LAYER = "Default";
     private const string GRAB_LAYER = "Grab";
@@ -18,6 +20,8 @@ public class FilterGrab : XRGrabInteractable
     private bool isGrabbed;
     private Vector3 limitPositions;
     private Vector3 limitDistances = new Vector3(0.2f, 0.4f, 0.4f);
+
+    public UnityEvent finishedPushing;
 
 
     private void Start()
@@ -50,11 +54,11 @@ public class FilterGrab : XRGrabInteractable
         }
         else if (filterTransform.localPosition.x <= limitPositions.x - limitDistances.x)
         {
-            isGrabbed = false;        
+            isGrabbed = false;
             filterTransform.localPosition = limitPositions;
             ChangeLayerMask(DEFAULT_LAYER);
         }
-        else if(filterTransform.localPosition.x >= limitDistances.x + filterLimitX)
+        else if (filterTransform.localPosition.x >= limitDistances.x + filterLimitX)
         {
             isGrabbed = false;
             filterTransform.localPosition = new Vector3(filterLimitX - limitDistances.x, 0f, 0f);
@@ -65,6 +69,11 @@ public class FilterGrab : XRGrabInteractable
     private void ChangeLayerMask(string mask)
     {
         interactionLayers = InteractionLayerMask.GetMask(mask);
+        finishedPushing.Invoke();
+        for (int i = 0; i < finishedPushing.GetPersistentEventCount(); i++)
+        {
+            UnityEventTools.RemovePersistentListener(finishedPushing, i);
+        }
     }
 
     protected override void OnSelectEntered(SelectEnterEventArgs args)
@@ -77,7 +86,7 @@ public class FilterGrab : XRGrabInteractable
         }
         else
         {
-            ChangeLayerMask(DEFAULT_LAYER);        
+            ChangeLayerMask(DEFAULT_LAYER);
         }
     }
 
@@ -95,6 +104,6 @@ public class FilterGrab : XRGrabInteractable
         if (!caseRemoved)
         {
             caseRemoved = true;
-        }        
+        }
     }
 }

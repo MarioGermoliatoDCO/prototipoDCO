@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.Events;
+using UnityEditor.Events;
 
 public class Filter : MonoBehaviour
 {
@@ -17,6 +19,11 @@ public class Filter : MonoBehaviour
     private float timeToClean = 5f;
 
     private AudioSource audioSource;
+
+    public UnityEvent cleaned;
+    public UnityEvent opened;
+    public UnityEvent closed;
+    private bool statusOpened = false;
 
     void Start()
     {
@@ -34,6 +41,12 @@ public class Filter : MonoBehaviour
         if (transform.localPosition.x >= 1.3f)
         {
             filterCollider.enabled = true;
+            opened.Invoke();
+            statusOpened = true;
+            for (int i = 0; i < opened.GetPersistentEventCount(); i++)
+            {
+                UnityEventTools.RemovePersistentListener(opened, i);
+            }
         }
         else
         {
@@ -43,9 +56,15 @@ public class Filter : MonoBehaviour
 
     private void CheckFilterClosed()
     {
-        if (transform.localPosition.x == 0)
+        if (transform.localPosition.x <= 0.1f && statusOpened)
         {
             filterCaseSocket.enabled = true;
+            closed.Invoke();
+            Debug.Log("Filter closed");
+            for (int i = 0; i < closed.GetPersistentEventCount(); i++)
+            {
+                UnityEventTools.RemovePersistentListener(closed, i);
+            }
         }
         else
         {
@@ -67,6 +86,11 @@ public class Filter : MonoBehaviour
             else
             {
                 filterMesh.material = cleanFilterMesh;
+                cleaned.Invoke();
+                for (int i = 0; i < cleaned.GetPersistentEventCount(); i++)
+                {
+                    UnityEventTools.RemovePersistentListener(cleaned, i);
+                }
                 dustParticles.SetActive(false);
             }
         }

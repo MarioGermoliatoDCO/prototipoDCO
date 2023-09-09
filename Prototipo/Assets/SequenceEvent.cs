@@ -5,15 +5,16 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [Serializable]
-public struct Step {
+public struct Step
+{
     public AudioClip Narration;
     public float duration;
-    public UnityEvent onEnd; 
+    public UnityEvent onEnd;
 }
 
 public class SequenceEvent : MonoBehaviour
 {
-    public List<Step> steps; 
+    public List<Step> steps;
     public int actualStep = 0;
     public AudioSource audio;
     // Start is called before the first frame update
@@ -23,13 +24,20 @@ public class SequenceEvent : MonoBehaviour
         StartCoroutine(NextStep());
     }
 
-    public void CallNextStep(){
-        actualStep++;
-        StartCoroutine(NextStep());
+    public void CallNextStep()
+    {
+        if (actualStep < steps.Count)
+        {
+
+            actualStep++;
+            StartCoroutine(NextStep());
+        }
     }
 
-    IEnumerator NextStep() {
-        if(steps[actualStep].Narration != null){
+    IEnumerator NextStep()
+    {
+        if (steps[actualStep].Narration != null)
+        {
             audio.clip = steps[actualStep].Narration;
             audio.Play();
             yield return new WaitForSeconds(audio.clip.length);
@@ -40,6 +48,6 @@ public class SequenceEvent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

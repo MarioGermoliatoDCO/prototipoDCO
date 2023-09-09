@@ -24,6 +24,7 @@ public class Screw : MonoBehaviour
     private float currentProgressToPlace = 0;
     private float positionAfterPlaced = -7.673f;
     private Rigidbody screwRigidbody;
+    public Transform tablePos;
 
     public static event EventHandler OnScrewRemoved;
 
@@ -73,6 +74,7 @@ public class Screw : MonoBehaviour
                 {
                     UnityEventTools.RemovePersistentListener(onRemove, i);
                 }
+                audio.volume = 0;
                 Debug.Log("Parafuso removido");
             }
         }
@@ -97,6 +99,7 @@ public class Screw : MonoBehaviour
                 {
                     UnityEventTools.RemovePersistentListener(onAtach, i);
                 }
+                audio.volume = 0;
                 Debug.Log("Parafuso recolocado");
             }
         }
@@ -111,5 +114,9 @@ public class Screw : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         audio.volume = 0;
+    }
+
+    public void ReleaseScrew(SelectExitEventArgs args){
+        this.transform.position = tablePos.position;
     }
 }
