@@ -13,6 +13,7 @@ public class Screw : MonoBehaviour
     [SerializeField] XRGrabInteractable grabInteractable;
 
     public UnityEvent onRemove;
+    public UnityEvent onRemove2;
     public UnityEvent onAtach;
 
     private const string SCREWDRIVER_TAG = "Screwdriver";
@@ -38,6 +39,11 @@ public class Screw : MonoBehaviour
 
     public void ChangeIsPlacedAgain()
     {
+        onAtach.Invoke();
+        for (int i = 0; i < onAtach.GetPersistentEventCount(); i++)
+        {
+            UnityEventTools.RemovePersistentListener(onAtach, i);
+        }
         isScrewPlacedAgain = true;
     }
 
@@ -51,6 +57,12 @@ public class Screw : MonoBehaviour
         if (!isScrewRemoved)
         {
             isScrewRemoved = true;
+            Debug.Log("removed");
+            onRemove2.Invoke();
+            for (int i = 0; i < onRemove2.GetPersistentEventCount(); i++)
+            {
+                UnityEventTools.RemovePersistentListener(onRemove2, i);
+            }
             OnScrewRemoved?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -94,11 +106,6 @@ public class Screw : MonoBehaviour
             {
                 transform.position = new Vector3(positionAfterPlaced, transform.position.y, transform.position.z);
                 grabInteractable.enabled = false;
-                onAtach.Invoke();
-                for (int i = 0; i < onAtach.GetPersistentEventCount(); i++)
-                {
-                    UnityEventTools.RemovePersistentListener(onAtach, i);
-                }
                 audio.volume = 0;
                 Debug.Log("Parafuso recolocado");
             }
