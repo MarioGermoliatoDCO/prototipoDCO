@@ -12,9 +12,10 @@ public class Screw : MonoBehaviour
     [SerializeField] GameObject screwSocket;
     [SerializeField] XRGrabInteractable grabInteractable;
 
+    public UnityEvent onDetach;
     public UnityEvent onRemove;
-    public UnityEvent onRemove2;
-    public UnityEvent onAtach;
+    public UnityEvent onAttach;
+    public UnityEvent onFixed;
 
     private const string SCREWDRIVER_TAG = "Screwdriver";
     private float timeToRemoveOrPlaceScrew = 3f;
@@ -39,10 +40,10 @@ public class Screw : MonoBehaviour
 
     public void ChangeIsPlacedAgain()
     {
-        onAtach.Invoke();
-        for (int i = 0; i < onAtach.GetPersistentEventCount(); i++)
+        onAttach.Invoke();
+        for (int i = 0; i < onAttach.GetPersistentEventCount(); i++)
         {
-            UnityEventTools.RemovePersistentListener(onAtach, i);
+            UnityEventTools.RemovePersistentListener(onAttach, i);
         }
         isScrewPlacedAgain = true;
     }
@@ -58,10 +59,10 @@ public class Screw : MonoBehaviour
         {
             isScrewRemoved = true;
             Debug.Log("removed");
-            onRemove2.Invoke();
-            for (int i = 0; i < onRemove2.GetPersistentEventCount(); i++)
+            onRemove.Invoke();
+            for (int i = 0; i < onRemove.GetPersistentEventCount(); i++)
             {
-                UnityEventTools.RemovePersistentListener(onRemove2, i);
+                UnityEventTools.RemovePersistentListener(onRemove, i);
             }
             OnScrewRemoved?.Invoke(this, EventArgs.Empty);
         }
@@ -81,10 +82,10 @@ public class Screw : MonoBehaviour
             {
                 transform.position = new Vector3(positionAfterRemoved, transform.position.y, transform.position.z);
                 grabInteractable.enabled = true;
-                onRemove.Invoke();
-                for (int i = 0; i < onRemove.GetPersistentEventCount(); i++)
+                onDetach.Invoke();
+                for (int i = 0; i < onDetach.GetPersistentEventCount(); i++)
                 {
-                    UnityEventTools.RemovePersistentListener(onRemove, i);
+                    UnityEventTools.RemovePersistentListener(onDetach, i);
                 }
                 audio.volume = 0;
                 Debug.Log("Parafuso removido");
@@ -107,6 +108,11 @@ public class Screw : MonoBehaviour
                 transform.position = new Vector3(positionAfterPlaced, transform.position.y, transform.position.z);
                 grabInteractable.enabled = false;
                 audio.volume = 0;
+                onFixed.Invoke();
+                for (int i = 0; i < onFixed.GetPersistentEventCount(); i++)
+                {
+                    UnityEventTools.RemovePersistentListener(onFixed, i);
+                }
                 Debug.Log("Parafuso recolocado");
             }
         }
