@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.Events;
-using UnityEditor.Events;
+// using UnityEditor.Events;
 
 public class Filter : MonoBehaviour
 {
@@ -20,9 +20,12 @@ public class Filter : MonoBehaviour
 
     private AudioSource audioSource;
 
-    public UnityEvent cleaned;
-    public UnityEvent opened;
-    public UnityEvent closed;
+    public List<UnityEvent> cleaned;
+    public int cleanedCalled = 0;
+    public List<UnityEvent> opened;
+    public int openedCalled = 0;
+    public List<UnityEvent> closed;
+    public int closedCalled = 0;
     private bool statusOpened = false;
 
     void Start()
@@ -41,12 +44,12 @@ public class Filter : MonoBehaviour
         if (transform.localPosition.x >= 1.3f)
         {
             filterCollider.enabled = true;
-            opened.Invoke();
-            statusOpened = true;
-            for (int i = 0; i < opened.GetPersistentEventCount(); i++)
+            if (openedCalled < opened.Count)
             {
-                UnityEventTools.RemovePersistentListener(opened, i);
+                opened[cleanedCalled].Invoke();
+                openedCalled++;
             }
+            statusOpened = true;
         }
         else
         {
@@ -59,11 +62,10 @@ public class Filter : MonoBehaviour
         if (transform.localPosition.x <= 0.1f && statusOpened)
         {
             filterCaseSocket.enabled = true;
-            closed.Invoke();
-            Debug.Log("Filter closed");
-            for (int i = 0; i < closed.GetPersistentEventCount(); i++)
-            {
-                UnityEventTools.RemovePersistentListener(closed, i);
+            if(closedCalled < closed.Count){
+                closed[closedCalled].Invoke();
+                closedCalled++;
+                Debug.Log("Filter closed");
             }
         }
         else
@@ -86,10 +88,9 @@ public class Filter : MonoBehaviour
             else
             {
                 filterMesh.material = cleanFilterMesh;
-                cleaned.Invoke();
-                for (int i = 0; i < cleaned.GetPersistentEventCount(); i++)
-                {
-                    UnityEventTools.RemovePersistentListener(cleaned, i);
+                if(cleanedCalled < cleaned.Count){
+                    cleaned[cleanedCalled].Invoke();
+                    cleanedCalled++;
                 }
                 dustParticles.SetActive(false);
             }

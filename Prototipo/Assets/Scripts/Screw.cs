@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEditor.Events;
+// using UnityEditor.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -12,11 +12,14 @@ public class Screw : MonoBehaviour
     [SerializeField] GameObject screwSocket;
     [SerializeField] XRGrabInteractable grabInteractable;
 
-    public UnityEvent onDetach;
-    public UnityEvent onRemove;
-    public UnityEvent onAttach;
-    public UnityEvent onFixed;
-
+    public List<UnityEvent> onDetach;
+    public int onDeatchCalled;
+    public List<UnityEvent> onRemove;
+    public int onRemoveCalled;
+    public List<UnityEvent> onAttach;
+    public int onAttachCalled;
+    public List<UnityEvent> onFixed;
+    public int onFixedCalled;
     private const string SCREWDRIVER_TAG = "Screwdriver";
     private float timeToRemoveOrPlaceScrew = 3f;
     private float currentProgressToRemove = 0;
@@ -40,10 +43,11 @@ public class Screw : MonoBehaviour
 
     public void ChangeIsPlacedAgain()
     {
-        onAttach.Invoke();
-        for (int i = 0; i < onAttach.GetPersistentEventCount(); i++)
+        if (onAttachCalled < onAttach.Count)
         {
-            UnityEventTools.RemovePersistentListener(onAttach, i);
+            onAttach[onAttachCalled].Invoke();
+            onAttachCalled++;
+
         }
         isScrewPlacedAgain = true;
     }
@@ -58,13 +62,13 @@ public class Screw : MonoBehaviour
         if (!isScrewRemoved)
         {
             isScrewRemoved = true;
-            Debug.Log("removed");
-            onRemove.Invoke();
-            for (int i = 0; i < onRemove.GetPersistentEventCount(); i++)
+            if (onRemoveCalled < onRemove.Count)
             {
-                UnityEventTools.RemovePersistentListener(onRemove, i);
+                Debug.Log("removed");
+                onRemove[onRemoveCalled].Invoke();
+                onRemoveCalled++;
+                OnScrewRemoved?.Invoke(this, EventArgs.Empty);
             }
-            OnScrewRemoved?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -82,13 +86,13 @@ public class Screw : MonoBehaviour
             {
                 transform.position = new Vector3(positionAfterRemoved, transform.position.y, transform.position.z);
                 grabInteractable.enabled = true;
-                onDetach.Invoke();
-                for (int i = 0; i < onDetach.GetPersistentEventCount(); i++)
+                if (onDeatchCalled < onDetach.Count)
                 {
-                    UnityEventTools.RemovePersistentListener(onDetach, i);
+                    onDetach[onDeatchCalled].Invoke();
+                    onDeatchCalled++;
+                    audio.volume = 0;
+                    Debug.Log("Parafuso removido");
                 }
-                audio.volume = 0;
-                Debug.Log("Parafuso removido");
             }
         }
     }
@@ -105,15 +109,16 @@ public class Screw : MonoBehaviour
             }
             else
             {
-                transform.position = new Vector3(positionAfterPlaced, transform.position.y, transform.position.z);
-                grabInteractable.enabled = false;
-                audio.volume = 0;
-                onFixed.Invoke();
-                for (int i = 0; i < onFixed.GetPersistentEventCount(); i++)
+                if (onFixedCalled < onFixed.Count)
                 {
-                    UnityEventTools.RemovePersistentListener(onFixed, i);
+
+                    transform.position = new Vector3(positionAfterPlaced, transform.position.y, transform.position.z);
+                    grabInteractable.enabled = false;
+                    audio.volume = 0;
+                    onFixed[onFixedCalled].Invoke();
+                    onFixedCalled++;
+                    Debug.Log("Parafuso recolocado");
                 }
-                Debug.Log("Parafuso recolocado");
             }
         }
     }
@@ -129,7 +134,7 @@ public class Screw : MonoBehaviour
         audio.volume = 0;
     }
 
-    public void ReleaseScrew(SelectExitEventArgs args)
+    public void ReleaseScrew()
     {
         if (!isScrewPlacedAgain)
         {

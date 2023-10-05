@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEditor.Events;
+// using UnityEditor.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class FilterGrab : XRGrabInteractable
@@ -21,7 +21,8 @@ public class FilterGrab : XRGrabInteractable
     private Vector3 limitPositions;
     private Vector3 limitDistances = new Vector3(0.2f, 0.4f, 0.4f);
 
-    public UnityEvent finishedPushing;
+    public List<UnityEvent> finishedPushing;
+    public int finishedPushCalled;
 
 
     private void Start()
@@ -55,12 +56,20 @@ public class FilterGrab : XRGrabInteractable
         else if (filterTransform.localPosition.x <= limitPositions.x - limitDistances.x)
         {
             isGrabbed = false;
+            if(finishedPushCalled < finishedPushing.Count){
+                finishedPushing[finishedPushCalled].Invoke();
+                finishedPushCalled++;
+            }
             filterTransform.localPosition = limitPositions;
             ChangeLayerMask(DEFAULT_LAYER);
         }
         else if (filterTransform.localPosition.x >= limitDistances.x + filterLimitX)
         {
             isGrabbed = false;
+            if(finishedPushCalled < finishedPushing.Count){
+                finishedPushing[finishedPushCalled].Invoke();
+                finishedPushCalled++;
+            }
             filterTransform.localPosition = new Vector3(filterLimitX - limitDistances.x, 0f, 0f);
             ChangeLayerMask(DEFAULT_LAYER);
         }
@@ -69,11 +78,6 @@ public class FilterGrab : XRGrabInteractable
     private void ChangeLayerMask(string mask)
     {
         interactionLayers = InteractionLayerMask.GetMask(mask);
-        finishedPushing.Invoke();
-        for (int i = 0; i < finishedPushing.GetPersistentEventCount(); i++)
-        {
-            UnityEventTools.RemovePersistentListener(finishedPushing, i);
-        }
     }
 
     protected override void OnSelectEntered(SelectEnterEventArgs args)
